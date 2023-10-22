@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    {% load bootstrap5 %}
+      {% bootstrap_css %}
+      {% bootstrap_javascript %}
+    <meta charset="UTF-8">
+    <title>Strona główna</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+</head>
+<body>
+    <h1>Strona główna</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-warning alert-dismissable fade show d-flex flex-row justify-content-center" role="alert">
+                <strong>{{ message }}!</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <a href="{% url 'statistics' %}">Statistics</a>
+    <ul>
+        {% for track in tracks %}
+        <li>
+            <strong>Pływak:</strong>  {{ track.swimmer }}
+            <strong>Tor:</strong> {{ track.track }}
+            <strong>Status:</strong> {{ track.status }}
+            <strong>Czas rozpoczęcia:</strong>{{ track.start_time }}
+        </li>
+        {% endfor %}
+    </ul>
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            {{ form.as_p }}
+        </div>
+    </form>
+</body>
+</html>

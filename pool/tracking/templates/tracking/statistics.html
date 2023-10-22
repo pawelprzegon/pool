@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <h1>Statystyki</h1>
+    <ul>
+        {% for track in tracks %}
+        <li>
+            <strong>Tor:</strong> {{ track.track }}
+            <strong>Pływak:</strong>  {{ track.swimmer }}
+            <strong>Czas rozpoczęcia:</strong>{{ track.start_time }}
+            <strong>Czas zatrzymania:</strong>{{ track.stop_time }}
+            <strong>Status:</strong> {{ track.status }}
+            <strong>Czas uzyskany:</strong> {{ track.time }}
+
+        </li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
