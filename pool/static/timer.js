@@ -25,16 +25,27 @@ class Timer{
         this.prepareTime();
     }
 
+    convertDateFormat(){
+        const dateTimeString = this.startTimeElement.textContent;
+        const [datePart, timePart] = dateTimeString.split(' '); // ["23-10-2023", "23:11:37"]
+        const [day, month, year] = datePart.split('-').map(Number);
+        const [hours, minutes, seconds] = timePart.split(':').map(Number);
+
+        return new Date(year, month - 1, day, hours, minutes, seconds);
+
+    }
+
     prepareTime(){
-        const start_time = Date.parse(this.startTimeElement.textContent)
+        const date = this.convertDateFormat()
+        const start_time = Date.parse(date)
         const now = new Date().getTime()
 
         const h = Math.round((now / (1000*60*60) - (start_time / (1000*60*60))) % 24)
         const m = Math.round((now / (1000*60) - (start_time / (1000*60))) % 60)
         const s = Math.round((now / (1000) - (start_time / (1000))) % 60)
-        console.log(h)
-        console.log(m)
-        console.log(s)
+        // console.log(h)
+        // console.log(m)
+        // console.log(s)
 
         this.hour = h;
         this.minute = m;

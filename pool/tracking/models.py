@@ -2,10 +2,12 @@ from django.db import models
 
 
 class Track(models.Model):
-    swimmer = models.CharField(max_length=100)
     track = models.PositiveIntegerField(unique=True, null=True, blank=True)
+    swimmer = models.CharField(max_length=100)
     start_time = models.DateTimeField(null=True, blank=True)
+    stop_time = models.CharField(max_length=30)
     status = models.CharField(max_length=20)
+    time = models.CharField(max_length=30)
 
 
     def __str__(self):
@@ -13,9 +15,9 @@ class Track(models.Model):
 
 
 class TrackHistory(models.Model):
-    swimmer = models.CharField(max_length=100)
     track = models.PositiveIntegerField()
+    swimmer = models.CharField(max_length=100)
     start_time = models.DateTimeField()
-    status = models.CharField(max_length=20)
     stop_time = models.DateTimeField()
+    status = models.CharField(max_length=20)
     time = models.DurationField()

@@ -7,11 +7,13 @@
       {% bootstrap_javascript %}
     <meta charset="UTF-8">
     <title>Strona główna</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 </head>
 <body>
-    <h1>Strona główna</h1>
+<div class="container">
+    <h1>Aktualne pomiary</h1>
 
     {% if messages %}
         {% for message in messages %}
@@ -22,46 +24,54 @@
         {% endfor %}
     {% endif %}
     <a href="{% url 'statistics' %}">Statistics</a>
-     {% for track in tracks %}
-    <ul>
-        <li>
-            <strong>Pływak:</strong>  {{ track.swimmer }}
+    <div>
+        <table>
+            <tr>
+              <th>Tor</th>
+              <th>Zawodnik</th>
+              <th>Czas Startu</th>
+              <th>Czas Zatrzymania</th>
+              <th>Pomiar</th>
+              <th>Czas uzyskany</th>
+            </tr>
+             {% for track in tracks %}
+                <tr>
+                    <td>{{ track.track }}</td>
+                    <td>{{ track.swimmer }}</td>
+                    <td><span class="times" id="{{ track.track }}">{{ track.start_time|date:"d-m-Y H:i:s" }}</span></td>
+                    <td>{{ track.stop_time }}</td>
+                    <td>
+                        <div id="time-{{ track.track }}">
+                            <span class="digit" id="hr-{{ track.track }}">
+                                00</span>
+                            <span class="txt">:</span>
+                            <span class="digit" id="min-{{ track.track }}">
+                                00</span>
+                            <span class="txt">:</span>
+                            <span class="digit" id="sec-{{ track.track }}">
+                                00</span>
+                            <span class="txt">:</span>
+                            <span class="digit" id="count-{{ track.track }}">
+                                00</span>
+                            </div>
+                    </td>
+                    <td>{{ track.time }}</td>
+                </tr>
+            {% endfor %}
+        </table>
 
-            <strong>Tor:</strong> {{ track.track }}
-
-            <strong>Status:</strong> {{ track.status }}
-
-            <strong>Czas rozpoczęcia: </strong>
-            <span class="times" id="{{ track.track }}">{{ track.start_time|date:"d M Y H:i:s" }}</span>
-
+    </div>
+    <div class="mt-3">
+        <form method="POST">
+            {% csrf_token %}
             <div>
-                <strong>Pomiar: </strong>
-                <div id="time-{{ track.track }}">
-                    <span class="digit" id="hr-{{ track.track }}">
-                        00</span>
-                    <span class="txt">:</span>
-                    <span class="digit" id="min-{{ track.track }}">
-                        00</span>
-                    <span class="txt">:</span>
-                    <span class="digit" id="sec-{{ track.track }}">
-                        00</span>
-                    <span class="txt">:</span>
-                    <span class="digit" id="count-{{ track.track }}">
-                        00</span>
-                </div>
+                {{ form.as_p }}
             </div>
+        </form>
+    </div>
 
+</div>
 
-        </li>
-
-    </ul>
-     {% endfor %}
-    <form method="POST">
-        {% csrf_token %}
-        <div>
-            {{ form.as_p }}
-        </div>
-    </form>
 <script src={% static 'timer.js' %}></script>
 </body>
 </html>

@@ -4,17 +4,20 @@ from django.contrib import messages
 
 
 def zaw(scann, request, queryset):
-    if not queryset.filter(swimmer=scann[1]).exists():
-        track = queryset.filter(track__isnull=True).last()
-        if track:
-            track.swimmer = scann[1]
+    if queryset.count() < 5:
+        if not queryset.filter(swimmer=scann[1]).exists():
+            track = queryset.filter(track__isnull=True).last()
+            if track:
+                track.swimmer = scann[1]
+            else:
+                track = Track(swimmer=scann[1])
+            track.save()
         else:
-            track = Track(swimmer=scann[1])
-        track.save()
+            track = queryset.filter(swimmer=scann[1]).last()
+            messages.error(request, f'przerywam działanie na torze {track.track} oraz zawodnika {scann[1]}')
+            track.delete()
     else:
-        track = queryset.filter(swimmer=scann[1]).last()
-        messages.error(request, f'przerywam działanie na torze {track.track} oraz zawodnika {scann[1]}')
-        track.delete()
+        messages.error(request, 'Wszystkie tory zajęte')
 
 
 def tor(scann, request, queryset):
@@ -31,7 +34,9 @@ def tor(scann, request, queryset):
                 free_track = queryset.filter(swimmer__isnull=False, track__isnull=True).last()
                 free_track.track = scann[1]
                 free_track.start_time = timezone.now().isoformat()
-                free_track.status = 'trwa pomiar'
+                free_track.stop_time = 'Trwa pomiar'
+                free_track.status = 'Trwa pomiar'
+                free_track.time = "Brak danych"
                 free_track.save()
         else:
             messages.error(request, 'Nie ma takiego toru')

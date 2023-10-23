@@ -1,25 +1,68 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
+    {% load bootstrap5 %}
+      {% bootstrap_css %}
+      {% bootstrap_javascript %}
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Statistics</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
 </head>
 <body>
+<div class="container">
+    <h1>Aktualne pomiary</h1>
 
-    <h1>Statystyki</h1>
-    <ul>
-        {% for track in tracks %}
-        <li>
-            <strong>Tor:</strong> {{ track.track }}
-            <strong>Pływak:</strong>  {{ track.swimmer }}
-            <strong>Czas rozpoczęcia:</strong>{{ track.start_time }}
-            <strong>Czas zatrzymania:</strong>{{ track.stop_time }}
-            <strong>Status:</strong> {{ track.status }}
-            <strong>Czas uzyskany:</strong> {{ track.time }}
-
-        </li>
-        {% endfor %}
-    </ul>
-
+    <a href="{% url 'home' %}">Home</a>
+    <div>
+        <table>
+            <tr>
+              <th>Tor</th>
+              <th>Zawodnik</th>
+              <th>Czas Startu</th>
+              <th>Czas Zatrzymania</th>
+              <th>Pomiar</th>
+              <th>Czas uzyskany</th>
+            </tr>
+            {% for track in tracks_in_progress %}
+                <tr>
+                    <td>{{ track.track }}</td>
+                    <td>{{ track.swimmer }}</td>
+                    <td><span class="times" id="{{ track.track }}">{{ track.start_time|date:"d-m-Y H:i:s" }}</span></td>
+                    <td>{{ track.stop_time }}</td>
+                    <td>
+                        <div id="time-{{ track.track }}">
+                            <span class="digit" id="hr-{{ track.track }}">
+                                00</span>
+                            <span class="txt">:</span>
+                            <span class="digit" id="min-{{ track.track }}">
+                                00</span>
+                            <span class="txt">:</span>
+                            <span class="digit" id="sec-{{ track.track }}">
+                                00</span>
+                            <span class="txt">:</span>
+                            <span class="digit" id="count-{{ track.track }}">
+                                00</span>
+                            </div>
+                    </td>
+                    <td>{{ track.time }}</td>
+                </tr>
+            {% endfor %}
+             {% for track in tracks %}
+                <tr>
+                    <td>{{ track.track }}</td>
+                    <td>{{ track.swimmer }}</td>
+                    <td>{{ track.start_time|date:"d-m-Y H:i:s" }}</td>
+                    <td>{{ track.stop_time|date:"d-m-Y H:i:s" }}</td>
+                    <td>{{ track.status }}</td>
+                    <td>{{ track.time }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+<script src={% static 'timer.js' %}></script>
 </body>
 </html>
