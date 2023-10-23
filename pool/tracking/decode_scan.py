@@ -30,7 +30,7 @@ def tor(scann, request, queryset):
             else:
                 free_track = queryset.filter(swimmer__isnull=False, track__isnull=True).last()
                 free_track.track = scann[1]
-                free_track.start_time = timezone.now()
+                free_track.start_time = timezone.now().isoformat()
                 free_track.status = 'trwa pomiar'
                 free_track.save()
         else:
@@ -49,7 +49,7 @@ def tor(scann, request, queryset):
                     track=track.track,
                     start_time=track.start_time,
                     status="Pomiar Zakończony",
-                    stop_time=timezone.now(),
+                    stop_time=timezone.now().isoformat(),
                     time=timezone.now() - track.start_time
                 )
                 trackHist.save()
