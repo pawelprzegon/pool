@@ -3,8 +3,8 @@ from django.views.generic import  ListView
 from django.views.generic.edit import FormMixin
 from .forms import ScanForm
 from django.urls import reverse_lazy
-from django.contrib import messages
-from tracking.decode_scan import zaw, tor
+from .decode_scan import Command
+from .filters import TorFilter
 
 
 class TrackStatusView(FormMixin, ListView):
@@ -19,13 +19,8 @@ class TrackStatusView(FormMixin, ListView):
 
     def decode_scan(self, scann):
         scann = scann.split('_')
-
-        if scann[0] == 'ZAW':
-            zaw(scann, self.request, queryset=super().get_queryset())
-        elif scann[0] == 'TOR':
-            tor(scann, self.request, queryset=super().get_queryset())
-        else:
-            messages.error(self.request, 'Błędny format skanu')
+        command = Command(scann, self.request, queryset=super().get_queryset())
+        command.decode_scann()
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
@@ -49,10 +44,14 @@ class TrackStatisticsView(ListView):
             if track.time:
                 track.time = str(track.time)[:-4]
 
-        return queryset
+        return TorFilter(self.request.GET, queryset=queryset).qs
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         in_progress = Track.objects.all().order_by('-start_time')
         context['tracks_in_progress'] = in_progress
+        context["tor_filter"] = TorFilter(
+            self.request.GET, queryset=super().get_queryset()
+        )
         return context
+

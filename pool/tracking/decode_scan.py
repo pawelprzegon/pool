@@ -1,54 +1,76 @@
-from tracking.models import Track, TrackHistory
+from .models import Track, TrackHistory
 from django.utils import timezone
 from django.contrib import messages
 
 
-def zaw(scann, request, queryset):
-    if queryset.count() < 5:
-        if not queryset.filter(swimmer=scann[1]).exists():
-            track = queryset.filter(track__isnull=True).last()
-            if track:
-                track.swimmer = scann[1]
-            else:
-                track = Track(swimmer=scann[1])
-            track.save()
+class Command:
+    def __init__(self, scann, request, queryset):
+        self.scann = scann
+        self.request = request
+        self.queryset = queryset
+
+    def decode_scann(self):
+        if self.scann[0] == 'ZAW':
+            self.zaw()
+        elif self.scann[0] == 'TOR':
+            self.tor()
         else:
-            track = queryset.filter(swimmer=scann[1]).last()
-            messages.error(request, f'przerywam działanie na torze {track.track} oraz zawodnika {scann[1]}')
-            track.delete()
-    else:
-        messages.error(request, 'Wszystkie tory zajęte')
+            messages.error(self.request, 'Błędny format skanu')
 
+    def zaw(self):
+        if self.queryset.count() < 5:
+            if not self.queryset.filter(swimmer=self.scann[1]).exists():
+                track = self.queryset.filter(track__isnull=True).last()
+                if track:
+                    track.swimmer = self.scann[1]
+                else:
+                    track = Track(swimmer=self.scann[1])
+                track.save()
+            else:
+                track = self.queryset.filter(swimmer=self.scann[1]).last()
+                messages.error(self.request,
+                               f'przerywam działanie na torze {track.track} oraz zawodnika {self.scann[1]}')
+                track.delete()
+        else:
+            messages.error(self.request, 'Wszystkie tory zajęte')
 
-def tor(scann, request, queryset):
-    if scann[2] == 'START':
-        if 0 < int(scann[1].strip('0')) <= 5:
+    def tor(self):
+        if len(self.scann) != 3:
+            messages.error(self.request, 'Błędny format skanu')
+        elif self.scann[2] == 'START':
+            self.start_command()
+        elif self.scann[2] == 'STOP':
+            self.stop_command()
 
-            if queryset.filter(track=scann[1]).first():
-                messages.error(request, 'Tor zajęty')
+    def start_command(self):
+        if 0 < int(self.scann[1].strip('0')) <= 5:
 
-            elif not queryset.filter(swimmer__isnull=False, track__isnull=True).exists():
-                messages.error(request, 'Brak zawodnika na torze, zarejestruj zawodnika')
+            if self.queryset.filter(track=self.scann[1]).first():
+                messages.error(self.request, 'Tor zajęty')
+
+            elif not self.queryset.filter(swimmer__isnull=False, track__isnull=True).exists():
+                messages.error(self.request, 'Brak zawodnika na torze, zarejestruj zawodnika')
 
             else:
-                free_track = queryset.filter(swimmer__isnull=False, track__isnull=True).last()
-                free_track.track = scann[1]
+                free_track = self.queryset.filter(swimmer__isnull=False, track__isnull=True).last()
+                free_track.track = self.scann[1]
                 free_track.start_time = timezone.now().isoformat()
                 free_track.stop_time = 'Trwa pomiar'
                 free_track.status = 'Trwa pomiar'
                 free_track.time = "Brak danych"
                 free_track.save()
         else:
-            messages.error(request, 'Nie ma takiego toru')
+            messages.error(self.request, 'Nie ma takiego toru')
 
-    elif scann[2] == 'STOP':
-        if 0 < int(scann[1].strip('0')) <= 5:
-            if not queryset.filter(track=scann[1]).exists():
-                messages.error(request, 'Na torze nie ma zawodnika')
+    def stop_command(self):
+        print('test')
+        if 0 < int(self.scann[1].strip('0')) <= 5:
+            if not self.queryset.filter(track=self.scann[1]).exists():
+                messages.error(self.request, 'Na torze nie ma zawodnika')
 
-            elif queryset.filter(swimmer__isnull=False, track__isnull=False).exists():
+            elif self.queryset.filter(swimmer__isnull=False, track__isnull=False).exists():
 
-                track = queryset.filter(track=scann[1], start_time__isnull=False).last()
+                track = self.queryset.filter(track=self.scann[1], start_time__isnull=False).last()
                 trackHist = TrackHistory(
                     swimmer=track.swimmer,
                     track=track.track,
@@ -61,4 +83,4 @@ def tor(scann, request, queryset):
                 track.delete()
 
         else:
-            messages.error(request, 'Nie ma takiego toru')
+            messages.error(self.request, 'Nie ma takiego toru')

@@ -1,7 +1,10 @@
 
+
+
 let timers = {}
 
 document.addEventListener("DOMContentLoaded", function() {
+
     const times = document.querySelectorAll('.times')
     times.forEach(time =>{
 
@@ -10,6 +13,9 @@ document.addEventListener("DOMContentLoaded", function() {
             timers[time.id].startTime()
         }
     })
+
+    let scann_input = document.querySelector('#id_scann')
+    scann_input.focus();
 
 })
 
@@ -40,17 +46,16 @@ class Timer{
         const start_time = Date.parse(date)
         const now = new Date().getTime()
 
-        const h = Math.round((now / (1000*60*60) - (start_time / (1000*60*60))) % 24)
-        const m = Math.round((now / (1000*60) - (start_time / (1000*60))) % 60)
-        const s = Math.round((now / (1000) - (start_time / (1000))) % 60)
-        // console.log(h)
-        // console.log(m)
-        // console.log(s)
+
+        const h = Math.floor((now / (1000*60*60) - (start_time / (1000*60*60))) % 24)
+        const m = Math.floor((now / (1000*60) - (start_time / (1000*60))) % 60)
+        const s = Math.floor((now / (1000) - (start_time / (1000))) % 60)
 
         this.hour = h;
         this.minute = m;
         this.second = s;
         this.count = 0;
+
     }
 
     startTime() {

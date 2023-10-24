@@ -14,20 +14,31 @@
 <body>
 <div class="container">
     <h1>Aktualne pomiary</h1>
+    <div class="mt-2 mb-2 d-flex flex-row">
+        <a type="button" class="btn btn-primary" href="{% url 'home' %}">Home</a>
+        <div class="d-flex flex-row align-items-center mx-3">
+            <form method="get">
+                {{ tor_filter.form }}
+                <button class="btn btn-outline-primary btn-sm" type="submit">Filtruj</button>
+            </form>
+        </div>
 
-    <a href="{% url 'home' %}">Home</a>
+    </div>
     <div>
-        <table>
+
+        <table class="table">
             <tr>
-              <th>Tor</th>
-              <th>Zawodnik</th>
-              <th>Czas Startu</th>
-              <th>Czas Zatrzymania</th>
-              <th>Pomiar</th>
-              <th>Czas uzyskany</th>
+              <th scope="col">lp</th>
+                <th class="col">Tor</th>
+                <th class="col">Zawodnik</th>
+                <th class="col">Czas Startu</th>
+                <th class="col">Czas Zatrzymania</th>
+                <th class="col">Pomiar</th>
+                <th class="col">Czas uzyskany</th>
             </tr>
             {% for track in tracks_in_progress %}
                 <tr>
+                    <th scope="row">#</th>
                     <td>{{ track.track }}</td>
                     <td>{{ track.swimmer }}</td>
                     <td><span class="times" id="{{ track.track }}">{{ track.start_time|date:"d-m-Y H:i:s" }}</span></td>
@@ -52,6 +63,7 @@
             {% endfor %}
              {% for track in tracks %}
                 <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
                     <td>{{ track.track }}</td>
                     <td>{{ track.swimmer }}</td>
                     <td>{{ track.start_time|date:"d-m-Y H:i:s" }}</td>
