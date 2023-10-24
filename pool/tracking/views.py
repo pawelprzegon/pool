@@ -29,8 +29,7 @@ class TrackStatusView(FormMixin, ListView):
             scann = form.cleaned_data.get('scann')
             self.decode_scan(scann=scann)
             return self.form_valid(form)
-        else:
-            return HttpResponseBadRequest("Niepoprawny formularz")
+        return self.form_invalid(form)
 
 
 class TrackStatisticsView(ListView):
