@@ -5,6 +5,7 @@ from .forms import ScanForm
 from django.urls import reverse_lazy
 from .decode_scan import Command
 from .filters import TorFilter
+from django.http import HttpResponseBadRequest
 
 
 class TrackStatusView(FormMixin, ListView):
@@ -29,7 +30,7 @@ class TrackStatusView(FormMixin, ListView):
             self.decode_scan(scann=scann)
             return self.form_valid(form)
         else:
-            return self.form_invalid(form)
+            return HttpResponseBadRequest("Niepoprawny formularz")
 
 
 class TrackStatisticsView(ListView):

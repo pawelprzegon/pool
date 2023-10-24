@@ -5,7 +5,7 @@ class Track(models.Model):
     track = models.PositiveIntegerField(unique=True, null=True, blank=True)
     swimmer = models.CharField(max_length=100)
     start_time = models.DateTimeField(null=True, blank=True)
-    stop_time = models.CharField(max_length=30)
+    stop_time = models.CharField(max_length=50)
     status = models.CharField(max_length=20)
     time = models.CharField(max_length=30)
 
