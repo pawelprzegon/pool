@@ -21,8 +21,9 @@ The project aims to calculate the time it takes a swimmer to occupy the swimming
 ## Installation
 
 1. Clone this repository.
-2. Install the required dependencies: `pip install -r requirements.txt`.
-3. Configure settings, e.g. database access.
+2. Go into dir: `cd pool`.
+3. Install the required dependencies: `pip install -r requirements.txt`.
+4. Configure settings, e.g. database access.
 
 ## Usage
 
