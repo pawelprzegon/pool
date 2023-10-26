@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'thread_cache',
     'tracking.apps.TrackingConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -127,3 +129,21 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique_cache_key_for_track_threads',  # Unikalny klucz pamięci podręcznej
+    }
+}
+
+from django.core.cache import cache
+from thread_cache.track_thread import TrackThreads
+
+# Sprawdź, czy obiekt "track_threads" istnieje w pamięci podręcznej
+track_threads = cache.get("track_threads")
+
+# Jeśli obiekt nie istnieje, utwórz go i zapisz w pamięci podręcznej
+if track_threads is None:
+    track_threads = TrackThreads()
+    cache.set("track_threads", track_threads)

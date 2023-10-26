@@ -5,7 +5,6 @@ from .forms import ScanForm
 from django.urls import reverse_lazy
 from .decode_scan import Command
 from .filters import TorFilter
-from django.http import HttpResponseBadRequest
 
 
 class TrackStatusView(FormMixin, ListView):

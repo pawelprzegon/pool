@@ -1,6 +1,11 @@
 from .models import Track, TrackHistory
 from django.utils import timezone
 from django.contrib import messages
+from .threads import DischargeThread
+import threading
+import json
+
+THREADS = {}
 
 
 class Command:
@@ -8,6 +13,16 @@ class Command:
         self.scann = scann
         self.request = request
         self.queryset = queryset
+        self.stop_thread = False
+        self.discharge = None
+        self.discharge_thread = None
+
+    def create_thread(self):
+        settings = {'scann': self.scann, 'discharged': 2, 'step': 5}
+        self.discharge = DischargeThread(settings)
+        self.discharge_thread = threading.Thread(target=self.discharge.start_discharge, name=self.scann[1])
+        THREADS[self.scann[1]] = self.discharge
+        return self.discharge_thread
 
     def decode_scann(self):
         if self.scann[0] == 'ZAW':
@@ -35,14 +50,21 @@ class Command:
             messages.error(self.request, 'Wszystkie tory zajęte')
 
     def tor(self):
+
         if len(self.scann) != 3:
             messages.error(self.request, 'Błędny format skanu')
         elif self.scann[2] == 'START':
-            self.start_command()
-        elif self.scann[2] == 'STOP':
-            self.stop_command()
 
-    def start_command(self):
+            self.start_command(self.create_thread())
+        elif self.scann[2] == 'STOP':
+
+            if self.scann[1] in THREADS:
+                THREADS[self.scann[1]].stop_thread()
+                self.stop_command(THREADS[self.scann[1]].get_history())
+                del THREADS[self.scann[1]]
+
+
+    def start_command(self, thread):
         if 0 < int(self.scann[1].strip('0')) <= 5:
 
             if self.queryset.filter(track=self.scann[1]).first():
@@ -59,11 +81,12 @@ class Command:
                 free_track.status = 'Trwa pomiar'
                 free_track.time = "Brak danych"
                 free_track.save()
+
+                thread.start()
         else:
             messages.error(self.request, 'Nie ma takiego toru')
 
-    def stop_command(self):
-        print('test')
+    def stop_command(self, history: list):
         if 0 < int(self.scann[1].strip('0')) <= 5:
             if not self.queryset.filter(track=self.scann[1]).exists():
                 messages.error(self.request, 'Na torze nie ma zawodnika')
@@ -77,7 +100,8 @@ class Command:
                     start_time=track.start_time,
                     status="Pomiar Zakończony",
                     stop_time=timezone.now().isoformat(),
-                    time=timezone.now() - track.start_time
+                    time=timezone.now() - track.start_time,
+                    history=json.dumps(history)
                 )
                 trackHist.save()
                 track.delete()

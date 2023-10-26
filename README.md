@@ -30,7 +30,7 @@ The project aims to calculate the time it takes a swimmer to occupy the swimming
 To run the project, follow these steps:
 
 1. Start the server: `python manage.py runserver`.
-2. Open a browser and go to `http://localhost:8000`.
+2. Open a browser and go to `http://localhost:8000/home`.
 
 ## Tests
 

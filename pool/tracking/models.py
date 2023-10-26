@@ -8,7 +8,7 @@ class Track(models.Model):
     stop_time = models.CharField(max_length=50)
     status = models.CharField(max_length=20)
     time = models.CharField(max_length=30)
-
+    thread = models.CharField(max_length=10)
 
     def __str__(self):
         return f"{self.swimmer}, {self.track}, {self.start_time}"
@@ -21,3 +21,5 @@ class TrackHistory(models.Model):
     stop_time = models.DateTimeField()
     status = models.CharField(max_length=20)
     time = models.DurationField()
+    history = models.TextField()
+
