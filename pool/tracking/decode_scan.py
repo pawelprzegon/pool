@@ -17,11 +17,12 @@ class Command:
         self.discharge = None
         self.discharge_thread = None
 
-    def create_thread(self):
+    def create_thread(self, swimmer):
         settings = {'scann': self.scann, 'discharged': 2, 'step': 5}
-        self.discharge = DischargeThread(settings)
+        self.discharge = DischargeThread(settings, self)
         self.discharge_thread = threading.Thread(target=self.discharge.start_discharge, name=self.scann[1])
-        THREADS[self.scann[1]] = self.discharge
+        THREADS[self.scann[1]] = [self.discharge, swimmer]
+        print('test')
         return self.discharge_thread
 
     def decode_scann(self):
@@ -46,25 +47,28 @@ class Command:
                 messages.error(self.request,
                                f'przerywam działanie na torze {track.track} oraz zawodnika {self.scann[1]}')
                 track.delete()
+                for scann, swimmer in THREADS.items():
+                    if swimmer[1] == self.scann[1]:
+                        swimmer[0].stop_thread()
+                        del THREADS[scann]
+                        break
+
         else:
             messages.error(self.request, 'Wszystkie tory zajęte')
 
     def tor(self):
-
         if len(self.scann) != 3:
             messages.error(self.request, 'Błędny format skanu')
         elif self.scann[2] == 'START':
-
-            self.start_command(self.create_thread())
+            self.start_command()
         elif self.scann[2] == 'STOP':
 
             if self.scann[1] in THREADS:
-                THREADS[self.scann[1]].stop_thread()
-                self.stop_command(THREADS[self.scann[1]].get_history())
+                THREADS[self.scann[1]][0].stop_thread()
+                self.stop_command(THREADS[self.scann[1]][0].get_history())
                 del THREADS[self.scann[1]]
 
-
-    def start_command(self, thread):
+    def start_command(self):
         if 0 < int(self.scann[1].strip('0')) <= 5:
 
             if self.queryset.filter(track=self.scann[1]).first():
@@ -81,8 +85,9 @@ class Command:
                 free_track.status = 'Trwa pomiar'
                 free_track.time = "Brak danych"
                 free_track.save()
-
+                thread = self.create_thread(free_track.swimmer)
                 thread.start()
+
         else:
             messages.error(self.request, 'Nie ma takiego toru')
 

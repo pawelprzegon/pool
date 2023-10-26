@@ -3,9 +3,10 @@ import threading
 
 
 class DischargeThread(threading.Thread):
-    def __init__(self, settings):
+    def __init__(self, settings, command):
         super(DischargeThread, self).__init__()
         self.settings = settings
+        self.command = command
         self.status = True
         self.history = []
         self.stop = False
@@ -30,14 +31,16 @@ class DischargeThread(threading.Thread):
             volt -= down_changer
             temp += down_changer
             if temp >= 70:
-                temp_trigger = False
-            elif temp >= 50:
-                down_changer = round((down_changer * 0.7), 1)
-                temp -= round((down_changer * 2), 1)
+                self.stop_thread()
+                self.command.stop_command(self.history)
+            # elif temp >= 50:
+            #     down_changer = round((down_changer * 0.7), 1)
+            #     temp -= round((down_changer * 2), 1)
+            # TODO zakomentowane aby przekroczyć temperature
             else:
                 down_changer = down
 
-            time.sleep(2)
+            time.sleep(0.5)
 
     def start_discharge(self):
         for status in self.get_data_from_discharge(self.settings['step']):

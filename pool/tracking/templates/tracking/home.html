@@ -14,7 +14,7 @@
 <body>
 <div class="container">
     <h1>Aktualne pomiary</h1>
-
+    <div id="home" data-url="{% url 'home' %}"></div>
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-warning alert-dismissable fade show d-flex flex-row justify-content-center" role="alert">
@@ -78,5 +78,6 @@
 </div>
 
 <script src={% static 'timer.js' %}></script>
+<script src={% static 'refresh.js' %}></script>
 </body>
 </html>
